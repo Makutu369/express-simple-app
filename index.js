@@ -15,8 +15,17 @@ app.get("/users", (req, res) => {
   res.send(users);
 });
 
+app.get("/api/courses", (req, res) => {
+  res.send([courses]);
+});
+
 app.get("/api/courses/:id", (req, res) => {
-  const result = courses.find((c) => c.id === req.params.id);
+  const result = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!result)
+    res.send("the course you were looking for cannot be found ").status(400);
+  else {
+    res.send([result]);
+  }
 });
 
 app.listen(port, () => {
