@@ -1,6 +1,14 @@
 const express = require("express");
 const port = process.env.PORT || 3000;
 const app = express();
+const z = require("zod");
+
+app.use(express.json());
+
+const schema = z.object({
+  id: z.number(),
+  name: z.string().min(3).max(16),
+});
 
 const courses = [
   { id: 1, name: "course" },
@@ -17,6 +25,34 @@ app.get("/users", (req, res) => {
 
 app.get("/api/courses", (req, res) => {
   res.send([courses]);
+});
+
+app.post("/api/courses", (req, res) => {
+  const course = {
+    id: courses.length + 1,
+    name: req.body.name,
+  };
+  try {
+    schema.parse(course);
+    res.send(course).status(201);
+    courses.push(course);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+app.put("/api/courses/:id", (req, res) => {
+  const course = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!course) return res.status(404);
+  else {
+    try {
+      schema.parse(course);
+      course.name = req.body.name;
+      res.send(course);
+    } catch (e) {
+      res.status(400).send(e);
+    }
+  }
 });
 
 app.get("/api/courses/:id", (req, res) => {
